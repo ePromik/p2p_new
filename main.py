@@ -1,8 +1,8 @@
-import requests
-import telebot
-from telebot import types
-import time
-import ccxt
+
+# import telebot
+# from telebot import types
+# import time
+# import ccxt
 
 #bot = telebot.TeleBot('6944341639:AAHVIrqTCyhCJYdbnR3TU0WEiTOhtSXpbW8')
 
@@ -21,6 +21,20 @@ platforms = {
 
 symbols = ['BTCUSDT']
 
+def custom_comparison(dictionares, keyValue):
+    results = {}
+    for item in dictionares.items():
+        place = item[0]
+        values = item[1]
+        results[place] = {}
+        for item_two in dictionares.items():
+            place_two = item_two[0]
+            values_two = item_two[1]
+            if place != place_two:
+                results[place][place_two] = 100 - (float(values[keyValue]) / float(values_two[keyValue])) * 100
+    return results
+
+
 def get_ticker_data(exchange, symbol):
     try:
         if exchange == 'Binance':
@@ -33,9 +47,6 @@ def get_ticker_data(exchange, symbol):
             response = requests.get(url)
             data = response.json()
             return data['result']
-
-
-
     except Exception as e:
         print(f"Error fetching data from {exchange}: {e}")
 
@@ -46,6 +57,9 @@ while True:
             for platform in platforms:
                 ticker_data = get_ticker_data(platform, symbol)
                 price_comparison[platform] = ticker_data
+
+            result_comparison = custom_comparison(price_comparison, 'price')
+            print(f"Price Comparison fn: {result_comparison}")
             print(f"{symbol} Price Comparison: {price_comparison}")
         time.sleep(10) # Wait for 10 seconds before fetching data again
     except KeyboardInterrupt:
