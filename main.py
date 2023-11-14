@@ -2,7 +2,7 @@
 # import telebot
 # from telebot import types
 # import time
-# import ccxt
+import ccxt
 
 #bot = telebot.TeleBot('6944341639:AAHVIrqTCyhCJYdbnR3TU0WEiTOhtSXpbW8')
 
@@ -15,7 +15,9 @@ import time
 # List of available exchange platforms
 platforms = {
     'Bybit': 'https://api.bybit.com/spot/quote/v1/ticker/price',
-    'Binance': 'https://api.binance.com/api/v3/ticker/price'
+    'Binance': 'https://api.binance.com/api/v3/ticker/price',
+    'Bitget': 'https://api.bitget.com/api/v2/spot/market/tickers'
+
 }
 
 
@@ -34,6 +36,19 @@ def custom_comparison(dictionares, keyValue):
                 results[place][place_two] = 100 - (float(values[keyValue]) / float(values_two[keyValue])) * 100
     return results
 
+# def custom_comparison(dictionares, keyValue):
+#     results = {}
+#     platforms = list(dictionares.keys())
+#     for item in range(len(platforms)):
+#         place = platforms[item]
+#         values = dictionares[place]
+#         results[place] = {}
+#         for j in range(item+1, len(platforms)):
+#             place_two = platforms[j]
+#             values_two = dictionares[place_two]
+#             results[place][place_two] = 100 - (float(values[keyValue]) / float(values_two[keyValue])) * 100
+#     return results
+
 
 def get_ticker_data(exchange, symbol):
     try:
@@ -47,8 +62,15 @@ def get_ticker_data(exchange, symbol):
             response = requests.get(url)
             data = response.json()
             return data['result']
+        elif exchange == 'Bitget':
+            url = platforms[exchange] + '?symbol=' + symbol
+            response = requests.get(url)
+            data = response.json()
+            return data['data']
     except Exception as e:
         print(f"Error fetching data from {exchange}: {e}")
+
+
 
 while True:
     try:
@@ -57,26 +79,35 @@ while True:
             for platform in platforms:
                 ticker_data = get_ticker_data(platform, symbol)
                 price_comparison[platform] = ticker_data
-
             result_comparison = custom_comparison(price_comparison, 'price')
-            print(f"Price Comparison fn: {result_comparison}")
-            print(f"{symbol} Price Comparison: {price_comparison}")
+            #print(f"Price Comparison fn: {result_comparison}")
+            print(f"{symbol} Price Comparison: {result_comparison}")
+            #print(f"{symbol} Price Comparison: {price_comparison}")
         time.sleep(10) # Wait for 10 seconds before fetching data again
     except KeyboardInterrupt:
         print("\nExiting...")
         break
 
-# while True:
-#     try:
-#         for platform in platforms:
-#             for symbol in symbols:
-#                 ticker_data = get_ticker_data(platform, symbol)
-#                 ticker_data = int(ticker_data)
-#                 print(f"{platform}: {symbol} Price = {ticker_data}")
-#         time.sleep(10) # Wait for 10 seconds before fetching data again
-#     except KeyboardInterrupt:
-#         print("\nExiting...")
-#         break
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
